@@ -13,14 +13,16 @@ struct PhysicsCategory {
     static let none : UInt32 = 0
     static let all : UInt32 = UInt32.max
     static let pacman : UInt32 = 0b1 // pacman is represented by first bit
-    static let badGhost: UInt32 = 0b10 // bad ghost by secondbit
-    static let goodGhost: UInt32 = 0b100 // good ghost by thrid bit
+    static let deadGhost: UInt32 = 0b10 // bad ghost by secondbit
+    static let liveGhost: UInt32 = 0b100 // good ghost by thrid bit
 }
 
 
 class GameScene: SKScene {
     
     let pacman = SKSpriteNode(imageNamed: "pacman")
+    
+    var lives = 3
     
     func random() -> CGFloat {
         return CGFloat(Float(arc4random()) / 0xFFFFFFFF)
@@ -36,7 +38,7 @@ class GameScene: SKScene {
         
         redGhost.physicsBody = SKPhysicsBody(circleOfRadius: redGhost.size.width/2)
         redGhost.physicsBody?.isDynamic = true
-        redGhost.physicsBody?.categoryBitMask = PhysicsCategory.badGhost
+        redGhost.physicsBody?.categoryBitMask = PhysicsCategory.liveGhost
         redGhost.physicsBody?.contactTestBitMask = PhysicsCategory.pacman
         redGhost.physicsBody?.collisionBitMask = PhysicsCategory.none
         
@@ -66,7 +68,7 @@ class GameScene: SKScene {
         
         pinkGhost.physicsBody = SKPhysicsBody(circleOfRadius: pinkGhost.size.width/2)
         pinkGhost.physicsBody?.isDynamic = true
-        pinkGhost.physicsBody?.categoryBitMask = PhysicsCategory.badGhost
+        pinkGhost.physicsBody?.categoryBitMask = PhysicsCategory.liveGhost
         pinkGhost.physicsBody?.contactTestBitMask = PhysicsCategory.pacman
         pinkGhost.physicsBody?.collisionBitMask = PhysicsCategory.none
         
@@ -96,7 +98,7 @@ class GameScene: SKScene {
         
         deadGhost.physicsBody = SKPhysicsBody(circleOfRadius: deadGhost.size.width/2)
         deadGhost.physicsBody?.isDynamic = true
-        deadGhost.physicsBody?.categoryBitMask = PhysicsCategory.goodGhost
+        deadGhost.physicsBody?.categoryBitMask = PhysicsCategory.deadGhost
         deadGhost.physicsBody?.contactTestBitMask = PhysicsCategory.pacman
         deadGhost.physicsBody?.collisionBitMask = PhysicsCategory.none
         
@@ -122,7 +124,7 @@ class GameScene: SKScene {
     
     override func didMove(to view: SKView) {
         
-        backgroundColor = SKColor.white //changing the backforund color of the scheme
+        backgroundColor = SKColor.black //changing the backforund color of the scheme
         pacman.anchorPoint = CGPoint(x: 0.5, y: 0.5) // setting the postion of the sprite
         pacman.position = CGPoint(x: 0, y: 0)
         
@@ -153,7 +155,7 @@ class GameScene: SKScene {
         ))
         
         physicsWorld.gravity = .zero //set the gravity of the of the game scene to none
-        //physicsWorld.contactDelegate = self  // allows the delegate to contact when two bodies collide
+        physicsWorld.contactDelegate = self  // allows the delegate to contact when two bodies collide
         
         
     }
@@ -187,12 +189,13 @@ class GameScene: SKScene {
             pacman.physicsBody = SKPhysicsBody(rectangleOf: pacman.size)
             pacman.physicsBody?.isDynamic = true
             pacman.physicsBody?.categoryBitMask = PhysicsCategory.pacman
-            pacman.physicsBody?.contactTestBitMask = PhysicsCategory.badGhost
+            pacman.physicsBody?.contactTestBitMask = PhysicsCategory.deadGhost
+            pacman.physicsBody?.contactTestBitMask = PhysicsCategory.liveGhost
             pacman.physicsBody?.collisionBitMask = PhysicsCategory.none
             pacman.physicsBody?.usesPreciseCollisionDetection = true
             
             
-            print("x: \(pacman.position.x) y: \(pacman.position.y)")
+            //print("x: \(pacman.position.x) y: \(pacman.position.y)")
         }
         
     }
@@ -208,5 +211,47 @@ class GameScene: SKScene {
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
+    }
+    
+    func pacmanDidCollideWithDeadGhost(deadGhost: SKSpriteNode, pacman: SKSpriteNode) {
+        print("Eaten!")
+        deadGhost.removeFromParent()
+    }
+    
+    func pacmanDidCollideWithLiveGhost(liveGhost: SKSpriteNode, pacman: SKSpriteNode){
+        lives -= 1
+        if lives <= 0{
+            pacman.removeFromParent()
+        }
+    }
+}
+
+extension GameScene: SKPhysicsContactDelegate{
+    
+    func didBegin(_ contact: SKPhysicsContact) {
+        
+        var firstBody: SKPhysicsBody
+        var secondBody: SKPhysicsBody
+        
+        print("1")
+        
+        if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask{
+            firstBody = contact.bodyA
+            secondBody = contact.bodyB
+            print("2.1")
+        } else{
+            firstBody = contact.bodyB
+            secondBody = contact.bodyA
+            print("2.2")
+        }
+        
+        
+        if ((firstBody.categoryBitMask & PhysicsCategory.pacman != 0) && (secondBody.categoryBitMask & PhysicsCategory.deadGhost != 0)) {
+            print("3.1")
+            if let pacman = firstBody.node as? SKSpriteNode,
+                let deadGhost = secondBody.node as? SKSpriteNode {
+                pacmanDidCollideWithDeadGhost(deadGhost: deadGhost, pacman: pacman)
+            }
+        }
     }
 }
