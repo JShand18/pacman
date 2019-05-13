@@ -13,19 +13,22 @@ struct PhysicsCategory {
     static let none : UInt32 = 0
     static let all : UInt32 = UInt32.max
     static let pacman : UInt32 = 0b1 // pacman is represented by first bit
-    static let deadGhost: UInt32 = 0b10 // bad ghost by secondbit
-    static let liveGhost: UInt32 = 0b100 // good ghost by thrid bit
+    static let deadGhost: UInt32 = 0b10 // dead ghost by secondbit
+    static let liveGhost: UInt32 = 0b100 // live ghosts by thrid bit
 }
 
 
 class GameScene: SKScene {
     
+    // the three sprites used for pacman
     let pacman = SKSpriteNode(imageNamed: "pacman")
     
     let pacmanEat = SKSpriteNode(imageNamed: "pacman_closed")
     
     let pacmanHit = SKSpriteNode(imageNamed: "pacman_hit")
     
+    
+    //lives and score labels
     var livesLabel: SKLabelNode!
     
     var lives = 3 {
@@ -42,6 +45,7 @@ class GameScene: SKScene {
         }
     }
     
+    // functions to creat random y-axis locations for spawn
     func random() -> CGFloat {
         return CGFloat(Float(arc4random()) / 0xFFFFFFFF)
     }
@@ -50,11 +54,12 @@ class GameScene: SKScene {
         return random() * (max - min) + min
     }
     
+    //red and pink ghosts are the live ghosts
     func redGhost() {
     
-        let redGhost = SKSpriteNode(imageNamed: "red_ghost")
+        let redGhost = SKSpriteNode(imageNamed: "red_ghost") // red ghost sprite
         
-        redGhost.physicsBody = SKPhysicsBody(circleOfRadius: redGhost.size.width/2)
+        redGhost.physicsBody = SKPhysicsBody(circleOfRadius: redGhost.size.width/2)  
         redGhost.physicsBody?.isDynamic = true
         redGhost.physicsBody?.categoryBitMask = PhysicsCategory.liveGhost
         redGhost.physicsBody?.contactTestBitMask = PhysicsCategory.pacman
@@ -271,6 +276,8 @@ class GameScene: SKScene {
         }
     }
     
+
+// delay function from StackOverflow, DSCHEE
     public func delay(bySeconds seconds: Double, dispatchLevel: DispatchLevel = .main, closure: @escaping () -> Void) {
         let dispatchTime = DispatchTime.now() + seconds
         dispatchLevel.dispatchQueue.asyncAfter(deadline: dispatchTime, execute: closure)
