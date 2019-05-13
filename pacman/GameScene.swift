@@ -22,7 +22,21 @@ class GameScene: SKScene {
     
     let pacman = SKSpriteNode(imageNamed: "pacman")
     
-    var lives = 3
+    var livesLabel: SKLabelNode!
+    
+    var lives = 3 {
+        didSet{
+            livesLabel.text = "Lives: \(lives)"
+        }
+    }
+    
+    var scoreLabel: SKLabelNode!
+    
+    var score = 0{
+        didSet{
+            scoreLabel.text = "Score: \(score)"
+        }
+    }
     
     func random() -> CGFloat {
         return CGFloat(Float(arc4random()) / 0xFFFFFFFF)
@@ -44,7 +58,7 @@ class GameScene: SKScene {
         
         let ghost = redGhost
         
-        let actualY = random(min: -size.height + ghost.size.height, max: size.height - ghost.size.height)
+        let actualY = random(min: -size.height/2 + ghost.size.height, max: size.height/2 - ghost.size.height)
         
         redGhost.position = CGPoint(x: size.width + ghost.size.width/2, y: actualY)
         
@@ -74,7 +88,7 @@ class GameScene: SKScene {
         
         let ghost = pinkGhost
         
-        let actualY = random(min: -size.height + ghost.size.height, max: size.height - ghost.size.height)
+        let actualY = random(min: -size.height/2 + ghost.size.height, max: size.height/2 - ghost.size.height)
         
         pinkGhost.position = CGPoint(x: size.width + ghost.size.width/2, y: actualY)
         
@@ -104,13 +118,13 @@ class GameScene: SKScene {
         
         let ghost = deadGhost
         
-        let actualY = random(min: -size.height + ghost.size.height, max: size.height - ghost.size.height)
+        let actualY = random(min: -size.height/2 + ghost.size.height, max: size.height/4 - ghost.size.height)
         
         deadGhost.position = CGPoint(x: size.width + ghost.size.width/2, y: actualY)
         
         addChild(deadGhost)
         
-        let actualDuration = random(min: CGFloat(4.0), max: CGFloat(5.0))
+        let actualDuration = random(min: CGFloat(5.0), max: CGFloat(6.0))
         
         let destination = -size.width
         
@@ -124,13 +138,22 @@ class GameScene: SKScene {
     
     override func didMove(to view: SKView) {
         
+        livesLabel = SKLabelNode(fontNamed: "Chalkduster")
+        livesLabel.text = "Lives: 3"
+        livesLabel.horizontalAlignmentMode = .center
+        livesLabel.position = CGPoint(x: size.width/4, y: size.height/2.5)
+        addChild(livesLabel)
+        
+        scoreLabel = SKLabelNode(fontNamed: "Chalkduster")
+        scoreLabel.text = "Score: 0"
+        scoreLabel.horizontalAlignmentMode = .center
+        scoreLabel.position = CGPoint(x: -size.width/4, y: size.height/2.5)
+        addChild(scoreLabel)
+        
         backgroundColor = SKColor.black //changing the backforund color of the scheme
         pacman.anchorPoint = CGPoint(x: 0.5, y: 0.5) // setting the postion of the sprite
         pacman.position = CGPoint(x: 0, y: 0)
-        
-        
         addChild(pacman)  //to make the sprite appear
-        
         
         
         run(SKAction.repeatForever(
@@ -194,8 +217,6 @@ class GameScene: SKScene {
             pacman.physicsBody?.collisionBitMask = PhysicsCategory.none
             pacman.physicsBody?.usesPreciseCollisionDetection = true
             
-            
-            //print("x: \(pacman.position.x) y: \(pacman.position.y)")
         }
         
     }
@@ -215,14 +236,16 @@ class GameScene: SKScene {
     
     func pacmanDidCollideWithDeadGhost(deadGhost: SKSpriteNode, pacman: SKSpriteNode) {
         print("Eaten!")
+        score += 1
         deadGhost.removeFromParent()
     }
     
     func pacmanDidCollideWithLiveGhost(liveGhost: SKSpriteNode, pacman: SKSpriteNode){
-        lives -= 1
-        if lives <= 0{
-            pacman.removeFromParent()
-        }
+            lives -= 1
+            print(lives)
+            if lives <= 0{
+                print("Game Over")
+            }
     }
 }
 
@@ -230,28 +253,33 @@ extension GameScene: SKPhysicsContactDelegate{
     
     func didBegin(_ contact: SKPhysicsContact) {
         
+        
         var firstBody: SKPhysicsBody
         var secondBody: SKPhysicsBody
         
-        print("1")
         
         if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask{
             firstBody = contact.bodyA
             secondBody = contact.bodyB
-            print("2.1")
         } else{
             firstBody = contact.bodyB
             secondBody = contact.bodyA
-            print("2.2")
         }
         
         
         if ((firstBody.categoryBitMask & PhysicsCategory.pacman != 0) && (secondBody.categoryBitMask & PhysicsCategory.deadGhost != 0)) {
-            print("3.1")
             if let pacman = firstBody.node as? SKSpriteNode,
                 let deadGhost = secondBody.node as? SKSpriteNode {
                 pacmanDidCollideWithDeadGhost(deadGhost: deadGhost, pacman: pacman)
             }
         }
+
+        if ((firstBody.categoryBitMask & PhysicsCategory.pacman != 0) && (secondBody.categoryBitMask & PhysicsCategory.liveGhost != 0)) {
+            if let pacman = firstBody.node as? SKSpriteNode,
+                let liveGhost = secondBody.node as? SKSpriteNode {
+                    pacmanDidCollideWithLiveGhost(liveGhost: liveGhost, pacman: pacman)
+                }
+            }
+        
     }
 }
