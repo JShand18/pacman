@@ -22,6 +22,10 @@ class GameScene: SKScene {
     
     let pacman = SKSpriteNode(imageNamed: "pacman")
     
+    let pacmanEat = SKSpriteNode(imageNamed: "pacman_closed")
+    
+    let pacmanHit = SKSpriteNode(imageNamed: "pacman_hit")
+    
     var livesLabel: SKLabelNode!
     
     var lives = 3 {
@@ -185,7 +189,7 @@ class GameScene: SKScene {
 
     
     func touchDown(atPoint pos : CGPoint) {
-      
+        
     }
     
     func touchMoved(toPoint pos : CGPoint) {
@@ -203,12 +207,12 @@ class GameScene: SKScene {
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         for touch in touches{
-            
+
             // moving kirby around following the user's finger
             let location = touch.location(in: self)
             pacman.position.x = location.x
             pacman.position.y = location.y
-            
+
             pacman.physicsBody = SKPhysicsBody(rectangleOf: pacman.size)
             pacman.physicsBody?.isDynamic = true
             pacman.physicsBody?.categoryBitMask = PhysicsCategory.pacman
@@ -217,6 +221,12 @@ class GameScene: SKScene {
             pacman.physicsBody?.collisionBitMask = PhysicsCategory.none
             pacman.physicsBody?.usesPreciseCollisionDetection = true
             
+            pacmanEat.position.x = location.x
+            pacmanEat.position.y = location.y
+            
+            pacmanHit.position.x = location.x
+            pacmanHit.position.y = location.y
+
         }
         
     }
@@ -238,15 +248,47 @@ class GameScene: SKScene {
         print("Eaten!")
         score += 1
         deadGhost.removeFromParent()
+        pacman.removeFromParent()
+        addChild(pacmanEat)
+        delay(bySeconds: 0.1) {
+            self.pacmanEat.removeFromParent()
+            self.addChild(pacman)
+        }
     }
     
     func pacmanDidCollideWithLiveGhost(liveGhost: SKSpriteNode, pacman: SKSpriteNode){
-            lives -= 1
-            print(lives)
-            if lives <= 0{
-                print("Game Over")
-            }
+        lives -= 1
+        print(lives)
+        if lives <= 0{
+            print("Game Over")
+        }
+        liveGhost.removeFromParent()
+        pacman.removeFromParent()
+        addChild(pacmanHit)
+        delay(bySeconds: 0.3) {
+            self.pacmanHit.removeFromParent()
+            self.addChild(pacman)
+        }
     }
+    
+    public func delay(bySeconds seconds: Double, dispatchLevel: DispatchLevel = .main, closure: @escaping () -> Void) {
+        let dispatchTime = DispatchTime.now() + seconds
+        dispatchLevel.dispatchQueue.asyncAfter(deadline: dispatchTime, execute: closure)
+    }
+    
+    public enum DispatchLevel {
+        case main, userInteractive, userInitiated, utility, background
+        var dispatchQueue: DispatchQueue {
+            switch self {
+            case .main:                 return DispatchQueue.main
+            case .userInteractive:      return DispatchQueue.global(qos: .userInteractive)
+            case .userInitiated:        return DispatchQueue.global(qos: .userInitiated)
+            case .utility:              return DispatchQueue.global(qos: .utility)
+            case .background:           return DispatchQueue.global(qos: .background)
+            }
+        }
+    }
+    
 }
 
 extension GameScene: SKPhysicsContactDelegate{
