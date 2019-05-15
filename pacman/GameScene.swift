@@ -27,6 +27,8 @@ class GameScene: SKScene {
     
     let pacmanHit = SKSpriteNode(imageNamed: "pacman_hit")
     
+    //hey jordan licker
+    
     
     //lives and score labels
     var livesLabel: SKLabelNode!
