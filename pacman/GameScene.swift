@@ -24,8 +24,7 @@ class GameScene: SKScene {
     let pacman = SKSpriteNode(imageNamed: "pacman")
     
     let pacmanEat = SKSpriteNode(imageNamed: "pacman_closed")
-    
-    let pacmanHit = SKSpriteNode(imageNamed: "pacman_hit")
+          let pacmanHit = SKSpriteNode(imageNamed: "pacman_hit")
     
     //hey jordan licker
     
@@ -169,15 +168,17 @@ class GameScene: SKScene {
         
         run(SKAction.repeatForever(
             SKAction.sequence([
-                SKAction.run(pinkGhost),
-                SKAction.wait(forDuration: 1.0)
+                SKAction.wait(forDuration: 1.0),
+                SKAction.run(pinkGhost)
+                
                 ])
         ))
         
         run(SKAction.repeatForever(
             SKAction.sequence([
-                SKAction.run(redGhost),
-                SKAction.wait(forDuration: 1.0)
+                SKAction.wait(forDuration: 1.0),
+                SKAction.run(redGhost)
+                
                 ])
         ))
         
@@ -266,9 +267,7 @@ class GameScene: SKScene {
     func pacmanDidCollideWithLiveGhost(liveGhost: SKSpriteNode, pacman: SKSpriteNode){
         lives -= 1
         print(lives)
-        if lives <= 0{
-            print("Game Over")
-        }
+
         liveGhost.removeFromParent()
         pacman.removeFromParent()
         addChild(pacmanHit)
