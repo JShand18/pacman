@@ -45,14 +45,14 @@ class MenuScene: SKScene{
                 SKAction.run(pinkGhost),
                 SKAction.wait(forDuration: 1.0)
                 
-            ])
+                ])
         ))
         
         run(SKAction.repeatForever(
             SKAction.sequence([
                 SKAction.run(redGhost),
                 SKAction.wait(forDuration: 1.0)
-            ])
+                ])
         ))
         
         addLogo()
@@ -173,3 +173,4 @@ class MenuScene: SKScene{
     }
     
 }
+
