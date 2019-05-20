@@ -19,39 +19,46 @@ class GameOverScene: SKScene {
     override func didMove(to view: SKView) {
         backgroundColor = SKColor.black
         
-        let gameOverLabel = SKLabelNode(fontNamed: "Chalkduster")
-        gameOverLabel.text = "Game Over. Tap anywhere to play again."
-        gameOverLabel.fontSize = 25
-        gameOverLabel.fontColor = SKColor.white
-        gameOverLabel.position = CGPoint(x: self.size.width * 0.5, y: self.size.height * 0.83 )
-        gameOverLabel.zPosition = 1
-        self.addChild(gameOverLabel)
         
         let scoreLabel = SKLabelNode(fontNamed: "Chalkduster")
         scoreLabel.text = "Score: \(gameScore)"
         scoreLabel.fontSize = 75
         scoreLabel.fontColor = SKColor.white
-        scoreLabel.position = CGPoint(x: self.size.width/2, y: self.size.height * 0.7)
+        scoreLabel.position = CGPoint(x: self.size.width/2, y: self.size.height * 0.5)
         scoreLabel.zPosition = 1
         self.addChild(scoreLabel)
         
+        let gameOverLabel = SKLabelNode(fontNamed: "Chalkduster")
+        gameOverLabel.text = "Game Over"
+        gameOverLabel.fontSize = 75
+        gameOverLabel.fontColor = SKColor.white
+        gameOverLabel.position = CGPoint(x: self.size.width * 0.5, y: self.size.height * 0.85 )
+        gameOverLabel.zPosition = 1
+        self.addChild(gameOverLabel)
         
-        let defaults = UserDefaults()
-        var highScoreNumber = defaults.integer(forKey: "Chalkduster")
+        let playAgainLabel = SKLabelNode(fontNamed: "Chalkduster")
+        playAgainLabel.text = "Tap anywhere to play again."
+        playAgainLabel.fontSize = 35
+        playAgainLabel.fontColor = SKColor.white
+        playAgainLabel.position = CGPoint(x: self.size.width * 0.5, y: self.size.height * 0.1 )
+        playAgainLabel.zPosition = 1
+        self.addChild(playAgainLabel)
         
-        if gameScore > highScoreNumber {
-            highScoreNumber = gameScore
-            defaults.set(highScoreNumber, forKey: "highScoreSaved")
-            
-        }
-        
-        let highScoreLabel = SKLabelNode(fontNamed: "Chalkduster")
-        highScoreLabel.text = "High Score: \(highScoreNumber)"
-        highScoreLabel.fontSize = 75
-        highScoreLabel.fontColor = SKColor.white
-        highScoreLabel.zPosition = 1
-        highScoreLabel.position = CGPoint(x: self.size.width/2, y: self.size.height * 0.6)
-        self.addChild(highScoreLabel)
+//        let defaults = UserDefaults()
+//        var highScoreNumber = defaults.integer(forKey: "Chalkduster")
+//        if gameScore > highScoreNumber {
+//            highScoreNumber = gameScore
+//            defaults.set(highScoreNumber, forKey: "highScoreSaved")
+//        }
+//
+//
+//        let highScoreLabel = SKLabelNode(fontNamed: "Chalkduster")
+//        highScoreLabel.text = "High Score: \(highScoreNumber)"
+//        highScoreLabel.fontSize = 75
+//        highScoreLabel.fontColor = SKColor.white
+//        highScoreLabel.zPosition = 1
+//        highScoreLabel.position = CGPoint(x: self.size.width/2, y: self.size.height * 0.6)
+//        self.addChild(highScoreLabel)
         
         
     }

@@ -45,13 +45,13 @@ class GameScene: SKScene {
     }
     
     var scoreLabel: SKLabelNode!
-
     
-    var score = gameScore{
+    var score = 0{
         didSet{
             scoreLabel.text = "Score: \(score)"
         }
     }
+
     
     
     // functions to creat random y-axis locations for spawn
