@@ -9,6 +9,8 @@
 import SpriteKit
 import GameplayKit
 
+var gameScore = 0
+
 struct PhysicsCategory {
     static let none : UInt32 = 0
     static let all : UInt32 = UInt32.max
@@ -18,15 +20,18 @@ struct PhysicsCategory {
 }
 
 
+
+
+
 class GameScene: SKScene {
     
     // the three sprites used for pacman
     let pacman = SKSpriteNode(imageNamed: "pacman")
     
     let pacmanEat = SKSpriteNode(imageNamed: "pacman_closed")
-          let pacmanHit = SKSpriteNode(imageNamed: "pacman_hit")
     
-    //hey jordan licker
+    let pacmanHit = SKSpriteNode(imageNamed: "pacman_hit")
+    
     
     
     //lives and score labels
@@ -36,15 +41,18 @@ class GameScene: SKScene {
         didSet{
             livesLabel.text = "Lives: \(lives)"
         }
+        
     }
     
     var scoreLabel: SKLabelNode!
+
     
-    var score = 0{
+    var score = gameScore{
         didSet{
             scoreLabel.text = "Score: \(score)"
         }
     }
+    
     
     // functions to creat random y-axis locations for spawn
     func random() -> CGFloat {
@@ -55,12 +63,20 @@ class GameScene: SKScene {
         return random() * (max - min) + min
     }
     
+    func startGame() {
+        
+    }
+    
+    func endGame() {
+        
+    }
+    
     //red and pink ghosts are the live ghosts
     func redGhost() {
-    
+        
         let redGhost = SKSpriteNode(imageNamed: "red_ghost") // red ghost sprite
         
-        redGhost.physicsBody = SKPhysicsBody(circleOfRadius: redGhost.size.width/2)  
+        redGhost.physicsBody = SKPhysicsBody(circleOfRadius: redGhost.size.width/2)
         redGhost.physicsBody?.isDynamic = true
         redGhost.physicsBody?.categoryBitMask = PhysicsCategory.liveGhost
         redGhost.physicsBody?.contactTestBitMask = PhysicsCategory.pacman
@@ -168,17 +184,15 @@ class GameScene: SKScene {
         
         run(SKAction.repeatForever(
             SKAction.sequence([
-                SKAction.wait(forDuration: 1.0),
-                SKAction.run(pinkGhost)
-                
+                SKAction.run(pinkGhost),
+                SKAction.wait(forDuration: 1.0)
                 ])
         ))
         
         run(SKAction.repeatForever(
             SKAction.sequence([
-                SKAction.wait(forDuration: 1.0),
-                SKAction.run(redGhost)
-                
+                SKAction.run(redGhost),
+                SKAction.wait(forDuration: 1.0)
                 ])
         ))
         
@@ -194,33 +208,33 @@ class GameScene: SKScene {
         
         
     }
-
+    
     
     func touchDown(atPoint pos : CGPoint) {
         
     }
     
     func touchMoved(toPoint pos : CGPoint) {
-      
+        
     }
     
     func touchUp(atPoint pos : CGPoint) {
-       
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-    
+        
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         for touch in touches{
-
+            
             // moving kirby around following the user's finger
             let location = touch.location(in: self)
             pacman.position.x = location.x
             pacman.position.y = location.y
-
+            
             pacman.physicsBody = SKPhysicsBody(rectangleOf: pacman.size)
             pacman.physicsBody?.isDynamic = true
             pacman.physicsBody?.categoryBitMask = PhysicsCategory.pacman
@@ -234,17 +248,17 @@ class GameScene: SKScene {
             
             pacmanHit.position.x = location.x
             pacmanHit.position.y = location.y
-
+            
         }
         
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-
+        
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
- 
+        
     }
     
     
@@ -267,7 +281,20 @@ class GameScene: SKScene {
     func pacmanDidCollideWithLiveGhost(liveGhost: SKSpriteNode, pacman: SKSpriteNode){
         lives -= 1
         print(lives)
-
+        if lives == 0{
+            
+            gameScore = score
+            //            let gameOver = SKScene(fileNamed: "GameOverScene") as! GameOverScene
+            //            gameOver.score = self.score
+            //            self.view?.presentScene(gameOver)
+            
+            let sceneToMoveTo = GameOverScene(size: self.size)
+            sceneToMoveTo.scaleMode = self.scaleMode
+            //            gameOver.score = self.score
+            let myTransition = SKTransition.fade(withDuration: 0.5)
+            self.view!.presentScene(sceneToMoveTo, transition: myTransition)
+            
+        }
         liveGhost.removeFromParent()
         pacman.removeFromParent()
         addChild(pacmanHit)
@@ -277,12 +304,14 @@ class GameScene: SKScene {
         }
     }
     
-
-// delay function from StackOverflow, DSCHEE
+    
+    // delay function from StackOverflow, DSCHEE
     public func delay(bySeconds seconds: Double, dispatchLevel: DispatchLevel = .main, closure: @escaping () -> Void) {
         let dispatchTime = DispatchTime.now() + seconds
         dispatchLevel.dispatchQueue.asyncAfter(deadline: dispatchTime, execute: closure)
     }
+    
+    
     
     public enum DispatchLevel {
         case main, userInteractive, userInitiated, utility, background
@@ -323,13 +352,13 @@ extension GameScene: SKPhysicsContactDelegate{
                 pacmanDidCollideWithDeadGhost(deadGhost: deadGhost, pacman: pacman)
             }
         }
-
+        
         if ((firstBody.categoryBitMask & PhysicsCategory.pacman != 0) && (secondBody.categoryBitMask & PhysicsCategory.liveGhost != 0)) {
             if let pacman = firstBody.node as? SKSpriteNode,
                 let liveGhost = secondBody.node as? SKSpriteNode {
-                    pacmanDidCollideWithLiveGhost(liveGhost: liveGhost, pacman: pacman)
-                }
+                pacmanDidCollideWithLiveGhost(liveGhost: liveGhost, pacman: pacman)
             }
+        }
         
     }
 }

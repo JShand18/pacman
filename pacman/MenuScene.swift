@@ -19,9 +19,9 @@ class MenuScene: SKScene{
     }
     
     func addLabel() {
-        let playLabel = SKLabelNode(text: "Play")
+        let playLabel = SKLabelNode(text: "Tap Anywhere To Play")
         playLabel.fontName = "Chalkduster"
-        playLabel.fontSize = 50.0
+        playLabel.fontSize = 40.0
         playLabel.fontColor = UIColor.white
         playLabel.position = CGPoint(x: 0, y: -size.height/4)
         addChild(playLabel)
@@ -40,20 +40,20 @@ class MenuScene: SKScene{
     override func didMove(to view: SKView) {
         backgroundColor = SKColor.black
         
-        run(SKAction.repeatForever(
-            SKAction.sequence([
-                SKAction.run(pinkGhost),
-                SKAction.wait(forDuration: 1.0)
-                
-                ])
-        ))
-        
-        run(SKAction.repeatForever(
-            SKAction.sequence([
-                SKAction.run(redGhost),
-                SKAction.wait(forDuration: 1.0)
-                ])
-        ))
+//        run(SKAction.repeatForever(
+//            SKAction.sequence([
+//                SKAction.run(pinkGhost),
+//                SKAction.wait(forDuration: 1.0)
+//                
+//                ])
+//        ))
+//        
+//        run(SKAction.repeatForever(
+//            SKAction.sequence([
+//                SKAction.run(redGhost),
+//                SKAction.wait(forDuration: 1.0)
+//                ])
+//        ))
         
         addLogo()
         addLabel()
